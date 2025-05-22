@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>زکیوه بات</title>
+  <style>
+    body {
+      font-family: 'Tahoma', sans-serif;
+      background: linear-gradient(to right, #4c669f, #3b5998, #192f6a);
+      color: white;
+      text-align: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .shayan-text {
+      position: absolute;
+      top: 5px;
+      left: 5px;
+      font-size: 8px;
+      color: rgba(255, 255, 255, 0.7);
+      font-weight: bold;
+      font-family: 'Tahoma', sans-serif;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    }
+
+    .chat-container {
+      width: 350px;
+      margin: 50px auto;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 10px;
+      box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.3);
+    }
+
+    #chat-box {
+      height: 300px;
+      overflow-y: auto;
+      text-align: left;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(5px);
+      border-radius: 5px;
+    }
+
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 5px;
+    }
+
+    button {
+      background-color: #ff8c00;
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #ff6000;
+      transform: scale(1.1);
+    }
+
+    .contact-btn {
+      position: fixed;
+      left: 10px;
+      bottom: 10px;
+      padding: 10px 20px;
+      background: #ff8c00;
+      color: white;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      animation: blink 1s infinite alternate;
+    }
+
+    @keyframes blink {
+      0% { opacity: 1; }
+      100% { opacity: 0.5; }
+    }
+
+    .contact-panel {
+      position: fixed;
+      left: 10px;
+      bottom: 50px;
+      width: 320px;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      border-radius: 10px;
+      box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.5);
+      display: none;
+      text-align: center;
+    }
+
+    .contact-panel p {
+      font-size: 18px;
+      font-weight: bold;
+      color: #ffdd57;
+      text-shadow: 2px 2px 5px rgba(255, 255, 255, 0.5);
+    }
+  </style>
+</head>
+<body>
+  <!-- نمایش نام SHAYAN MOLAWAYSI در گوشه سمت چپ بالا -->
+  <span class="shayan-text">SHAYAN MOLAWAYSI</span>
+
+  <div class="chat-container">
+    <h2>👋 خوش آمدید به زکیوه بات</h2>
+    <div id="chat-box"></div>
+    <input type="text" id="user-input" placeholder="پیام خود را وارد کنید..." onkeypress="handleKeyPress(event)">
+    <button onclick="sendMessage()">ارسال</button>
+  </div>
+
+  <button class="contact-btn" onclick="toggleContact()">ارتباط با ما</button>
+  <div class="contact-panel" id="contactPanel">
+    <p>📌 سازنده: <span style="color:#ff0077;">شایان ملاویسی</span></p>
+    <p>📞 شماره همراه: <span style="color:#00ff77;">09908486873</span></p>
+    <p>📸 اینستاگرام: <span style="color:#0077ff;">shayan_873_m_l</span></p>
+    <p>📍 آدرس: <span style="color:#ff5500;">کردستان، دیواندره، روستای زکی بیگ علیا</span></p>
+  </div>
+
+  <script>
+    function toggleContact() {
+      var panel = document.getElementById("contactPanel");
+      panel.style.display = panel.style.display === "block" ? "none" : "block";
+    }
+
+    function sendMessage() {
+      const userInput = document.getElementById("user-input").value.trim();
+      if (!userInput) return;
+
+      addMessage("شما:", userInput);
+      document.getElementById("user-input").value = "";
+
+      fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer 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`
+        },
+        body: JSON.stringify({
+          model: "gpt-4",
+          messages: [{ role: "user", content: userInput }]
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.choices && data.choices[0] && data.choices[0].message) {
+          addMessage("زکیوه بات:", data.choices[0].message.content);
+        } else {
+          addMessage("زکیوه بات:", "پاسخ قابل قبولی دریافت نشد.");
+        }
+      })
+      .catch(() => addMessage("خطا:", "مشکلی پیش آمده!"));
+    }
+
+    function addMessage(role, message) {
+      const chatBox = document.getElementById("chat-box");
+      chatBox.innerHTML += `<p><strong>${role}</strong> ${message}</p>`;
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function handleKeyPress(event) {
+      if (event.key === "Enter") {
+        sendMessage();
+      }
+    }
+  </script>
+</body>
+</html>
